@@ -1,6 +1,7 @@
 {
-  "name": "gopnik-gpt",
+  "name": "app",
   "packageManager": "yarn@4.1.0",
+  "private": true,
   "workspaces": [
     "apps/*",
     "packages/*"

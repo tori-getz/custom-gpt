@@ -1,0 +1,16 @@
+@import '~/shared/ui/mixins/shadows.sass'
+  
+.container
+  @include Shadow1Mixin
+  background: var(--white)
+  padding: 16px 20px
+  display: flex
+  align-items: center
+  color: var(--black3)
+  border-radius: 10px
+  &__input
+    flex: 1
+    padding: 0px 12px
+  
+  &:hover
+    color: var(--black1)

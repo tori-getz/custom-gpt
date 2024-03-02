@@ -1,0 +1,34 @@
+{
+  "name": "@app/shared",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migrate:gen": "typeorm-ts-node-commonjs migration:generate -d ./src/typeorm.config.ts",
+    "migrate:run": "typeorm-ts-node-commonjs migration:run -d ./src/typeorm.config.ts"
+  },
+  "main": "dist/index.js",
+  "dependencies": {
+    "@nestjs/common": "^10.3.3",
+    "@nestjs/config": "^3.2.0",
+    "@nestjs/swagger": "^7.3.0",
+    "@nestjs/typeorm": "^10.0.2",
+    "@types/node": "^20.11.20",
+    "app-root-path": "^3.1.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "dotenv": "^16.4.5",
+    "nestjs-paginate": "^8.6.1",
+    "nestjs-pino": "^4.0.0",
+    "pg": "^8.11.3",
+    "pino": "^8.19.0",
+    "pino-http": "^9.0.0",
+    "pino-loki": "^2.2.1",
+    "pino-pretty": "^10.3.1",
+    "ts-node": "^10.9.2",
+    "typeorm": "^0.3.20",
+    "typescript": "^5.2.2"
+  }
+}

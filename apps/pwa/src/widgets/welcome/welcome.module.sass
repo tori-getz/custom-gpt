@@ -1,0 +1,22 @@
+@import '~/shared/ui/mixins/shadows.sass'
+@import '~/shared/ui/mixins/typography.sass'
+
+.page
+  display: flex
+  align-items: center
+  justify-content: center
+  height: 100%
+
+.card
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: 12px
+  padding: 32px
+  border-radius: 10px
+  @include Shadow1Mixin
+  background-color: var(--white)
+  &__title
+    @include H1Mixin
+  &__divider
+    color: var(--black4)

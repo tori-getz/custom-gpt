@@ -1,0 +1,29 @@
+@import '~/shared/ui/mixins/shadows.sass'
+
+.container
+  display: flex
+  padding: 12px
+  gap: 12px
+  &__user
+    flex-direction: row
+  &__bot
+    flex-direction: row-reverse
+
+.avatar
+  @include Shadow1Mixin
+  background: var(--white)
+  padding: 12px
+  border-radius: 50%
+
+.message
+  @include Shadow1Mixin
+  display: flex
+  padding: 12px
+  border-radius: 10px
+  min-width: 200px
+  &__user
+    background: var(--black5)
+    color: var(--black1)
+  &__bot
+    background: var(--blue4)
+    color: var(--white)

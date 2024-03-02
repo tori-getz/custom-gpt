@@ -1,0 +1,29 @@
+@import '~/shared/ui/mixins/shadows.sass'
+
+.button
+  display: flex
+  align-items: center
+  justify-content: center
+  gap: 5px
+  padding: 12px 20px
+  border-radius: 10px
+  cursor: pointer
+  &__shadow
+    @include Shadow1Mixin
+  &__normal
+    background-color: var(--grey4)
+    transition: 0.5s background, color
+    &:hover
+      background: var(--blue2)
+      color: var(--white)
+      font-weight: 500
+    &:disabled
+      opacity: 0.5
+  
+  &__transparent
+    background-color: transparent
+    transition: 0.5s background, color
+    &:hover
+      background: var(--grey-transparent)
+    &:disabled
+      opacity: 0.5

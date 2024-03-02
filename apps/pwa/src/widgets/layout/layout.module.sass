@@ -1,0 +1,11 @@
+@import '~/shared/ui/mixins/shadows.sass'
+  
+.layout
+  display: grid
+  grid-template-columns: 1fr 4fr
+  background-color: var(--grey3)
+  width: 100%
+  height: 100vh
+  &__aside
+    @include Shadow1Mixin
+    background: var(--white)

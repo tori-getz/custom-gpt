@@ -1,0 +1,23 @@
+@import '~/shared/ui/mixins/shadows.sass'
+  
+.dialog
+  position: relative
+  z-index: 50
+
+.backdrop
+  background: var(--backdrop)
+  position: fixed
+  inset: 0
+
+.container
+  position: fixed
+  inset: 0
+  display: flex
+  align-items: center
+  justify-content: center
+
+.panel
+  @include Shadow1Mixin
+  background: var(--white)
+  padding: 12px
+  border-radius: 12px
