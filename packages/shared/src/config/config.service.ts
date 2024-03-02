@@ -29,7 +29,10 @@ export class ConfigService {
         port: this.envService.get<number>('API_GATEWAY_PORT'),
         swaggerUrl: this.envService.get<string>('API_GATEWAY_SWAGGER_URL'),
         prefix: this.envService.get<string>('API_GATEWAY_PREFIX'),
-      }
+      },
+      jwt: {
+        secret: this.envService.get<string>('JWT_SECRET'),
+      },
     }
   }
 }

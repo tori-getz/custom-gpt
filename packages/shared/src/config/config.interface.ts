@@ -3,6 +3,7 @@ export interface IConfig {
   typeorm: IConfigTypeOrm;
   nats: IConfigNats;
   apiGateway: IConfigApiGateway;
+  jwt: IConfigJwt;
 }
 
 export interface IConfigOpenAI {
@@ -27,4 +28,8 @@ export interface IConfigApiGateway {
   port: number;
   swaggerUrl: string;
   prefix: string;
+}
+
+export interface IConfigJwt {
+  secret: string;
 }

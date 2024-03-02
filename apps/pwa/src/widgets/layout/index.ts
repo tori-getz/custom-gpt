@@ -1,1 +1,2 @@
-export { Layout } from './layout.component';
+export * from './ui';
+export * from './model';

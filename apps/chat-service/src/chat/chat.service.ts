@@ -1,8 +1,8 @@
-import { BroadcastMessage, ChatCreate, ChatEntity, ChatSender, GetChatHistory, GptGenerateInput, GptGenerateOutput, InjectPinoLogger, MessageEntity, PinoLogger, SendMessageToChat, methodLog } from '@app/shared';
+import { BroadcastMessage, ChatCreate, ChatEntity, ChatSender, GetChatHistory, GetChatList, GptGenerateInput, GptGenerateOutput, InjectPinoLogger, MessageEntity, PinoLogger, SendMessageToChat, UserEntity, methodLog } from '@app/shared';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate';
+import { Paginated, paginate } from 'nestjs-paginate';
 import { catchError, firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 
@@ -14,6 +14,7 @@ export class ChatService implements OnApplicationBootstrap {
     @InjectPinoLogger(ChatService.name) private readonly logger: PinoLogger,
     @InjectRepository(ChatEntity) private readonly chatRepository: Repository<ChatEntity>,
     @InjectRepository(MessageEntity) private readonly messageRepository: Repository<MessageEntity>,
+    @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   public onApplicationBootstrap() {
@@ -21,14 +22,19 @@ export class ChatService implements OnApplicationBootstrap {
     this.apiGateway.connect();
   }
 
-  public async findAll(query: PaginateQuery): Promise<Paginated<ChatEntity>> {
+  public async findAll(dto: GetChatList): Promise<Paginated<ChatEntity>> {
     using logger = methodLog(this.logger, this.findAll.name);
 
-    const response = await paginate(query, this.chatRepository, {
+    const response = await paginate(dto.query, this.chatRepository, {
       sortableColumns: ['id'],
       searchableColumns: ['name'],
       defaultSortBy: [['id', 'DESC']],
       select: ['id', 'name'],
+      where: {
+        user: {
+          id: dto.authPayload.userId,
+        }
+      }
     });
 
     logger.log(`find ${response.meta.totalItems} chats`);
@@ -47,6 +53,9 @@ export class ChatService implements OnApplicationBootstrap {
       where: {
         chat: {
           id: dto.chatId,
+          user: {
+            id: dto.authPayload.userId,
+          }
         },
       },
     });
@@ -56,18 +65,35 @@ export class ChatService implements OnApplicationBootstrap {
     return response;
   }
 
-  public async createChat({ chatName }: ChatCreate): Promise<ChatEntity> {
-    using logger = methodLog(this.logger, this.createChat.name);
-    const chat = new ChatEntity();
-    chat.name = chatName;
+  public async create({ chatName, authPayload }: ChatCreate): Promise<ChatEntity> {
+    using logger = methodLog(this.logger, this.create.name);
+    
+    const user = await this.userRepository.findOne({
+      where: {
+        id: authPayload.userId
+      }
+    });
+
+    const chat = this.chatRepository.create({
+      name: chatName,
+      user,
+    });
+
     return this.chatRepository.save(chat);
   }
 
-  public async sendMessage({ chatId, content }: SendMessageToChat): Promise<MessageEntity> {
+  public async sendMessage({ chatId, content, authPayload }: SendMessageToChat): Promise<MessageEntity> {
     using logger = methodLog(this.logger, this.sendMessage.name);
 
     logger.log('find chat with id ' + chatId)
-    const chat = await this.chatRepository.findOne({ where: { id: chatId } });
+    const chat = await this.chatRepository.findOne({
+      where: {
+        id: chatId,
+        user: {
+          id: authPayload.userId,
+        }
+      } 
+    });
 
     if (!chat) {
       logger.logError(`Chat with id ${chatId} not found`);
@@ -101,9 +127,9 @@ export class ChatService implements OnApplicationBootstrap {
         this.gptService.send<GptGenerateOutput>('gpt.generate', gptGenerateInput).pipe(
           catchError(e => {
             logger.logError(e);
-            throw e.message;
-          }),
-        ),
+            throw e;
+          })
+        )
       );
       logger.log(`output - ${gptGenerateOutput.output}`);
 

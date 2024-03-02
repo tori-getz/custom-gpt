@@ -1,6 +1,6 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { MessageEntity } from "./message.entity";
-import { ApiProperty } from '@nestjs/swagger';
+import { UserEntity } from "./user.entity";
 
 @Entity('chat')
 export class ChatEntity {
@@ -12,6 +12,9 @@ export class ChatEntity {
 
   @OneToMany(() => MessageEntity, message => message.chat)
   public messages: Array<MessageEntity>;
+
+  @ManyToOne(() => UserEntity, user => user.chats)
+  public user: UserEntity;
 
   @CreateDateColumn()
   public createdAt: number;

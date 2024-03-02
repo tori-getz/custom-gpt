@@ -9,6 +9,8 @@ import { IChat, getChatsQuery } from "~/entities/chat";
 import { IconButton } from "~/shared/ui/buttons/icon-button";
 import { MdArrowBack } from "react-icons/md";
 import { router } from "~/app/routing";
+import { useBreakpoints } from "~/shared/hooks";
+import { setMenuOpened } from "~/widgets/layout";
 
 export interface IMessageListProps extends PropsWithChildren {}
 
@@ -18,6 +20,8 @@ export const MessageList: React.FC<IMessageListProps> = ({
   children
 }) => {
   const [page, _setPage] = useState<number>(1);
+
+  const breakpoints = useBreakpoints();
 
   const { chatId } = routeApi.useParams();
   const { data: messages, pending } = useUnit(getMessagesQuery);
@@ -29,6 +33,15 @@ export const MessageList: React.FC<IMessageListProps> = ({
   useEffect(() => {
     getMessagesQuery.start({ chatId, page });
   }, [page, chatId]);
+
+  const onBack = () => {
+    if (breakpoints.isMobile) {
+      setMenuOpened(true);
+      return;
+    }
+
+    router.navigate({ from: '/chats' });
+  }
 
   const renderMessages = () => {
     if (pending) return <Spinner />
@@ -49,7 +62,7 @@ export const MessageList: React.FC<IMessageListProps> = ({
       <div className={cls.topbar}>
         <IconButton
           icon={MdArrowBack}
-          onClick={() => router.navigate({ from: '/chats' })}
+          onClick={onBack}
         />
         <h1 className={cls.topbar__title}>{chat?.name}</h1>
       </div>

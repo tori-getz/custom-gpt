@@ -5,6 +5,8 @@ import { isEmpty } from "lodash";
 import { useUnit } from 'effector-react';
 import { Spinner } from "~/shared/ui/spinner";
 import { router } from "~/app/routing";
+import { useBreakpoints } from "~/shared/hooks";
+import { setMenuOpened } from "~/widgets/layout";
 
 interface IChatListProps extends PropsWithChildren {
 }
@@ -13,6 +15,8 @@ export const ChatList: React.FC<IChatListProps> = ({
   children,
 }) => {
   const [page, _setPage] = useState<number>(1);
+
+  const breakpoints = useBreakpoints();
 
   const { data, pending } = useUnit(getChatsQuery);
 
@@ -35,6 +39,11 @@ export const ChatList: React.FC<IChatListProps> = ({
         title={chat.name}
         onClick={() => {
           console.log(`navigate ${chat.id}`)
+
+          if (breakpoints.isMobile) {
+            setMenuOpened(false);
+          }
+
           router.navigate({
             from: '/chats/$chatId',
             params: {
@@ -44,7 +53,7 @@ export const ChatList: React.FC<IChatListProps> = ({
         }}
       />
     ));
-  }, [data, pending]);
+  }, [data, pending, breakpoints.isMobile]);
 
   return (
     <div className={cls.container}>

@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
 import { ConfigService } from '@nestjs/config';
-import { ChatEntity, MessageEntity } from './entities';
+import { ChatEntity, MessageEntity, UserEntity } from './entities';
 
 const ENV_FILE_PATH = path.resolve(appRoot, '.env');
 
@@ -20,7 +20,7 @@ export default new DataSource({
   username: configService.get<string>('TYPEORM_USERNAME'),
   password: configService.get<string>('TYPEORM_PASSWORD'),
   database: configService.get<string>('TYPEORM_DATABASE'),
-  entities: [ChatEntity, MessageEntity],
+  entities: [ChatEntity, MessageEntity, UserEntity],
   synchronize: false,
   migrations: [path.resolve(__dirname, 'migrations/**.ts')]
 });

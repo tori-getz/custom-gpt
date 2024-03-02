@@ -1,0 +1,20 @@
+@import '~/shared/ui/mixins/shadows.sass'
+
+.tabs
+  @include Shadow1Mixin
+  display: flex
+  flex-direction: row
+  &__item
+    background: transparent
+    flex: 1
+    display: flex
+    align-items: center
+    justify-content: center
+    padding: 12px
+    cursor: pointer
+    transition: 0.5s background
+    &_active
+      background: var(--grey-transparent)
+      border-bottom: 5px solid var(--blue4)
+    &:hover
+      background: var(--grey-transparent)

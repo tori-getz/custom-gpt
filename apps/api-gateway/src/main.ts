@@ -21,7 +21,7 @@ async function bootstrap() {
   });
 
   const documentConfig = new DocumentBuilder()
-    .setTitle('Gopnik API Gateway')
+    .setTitle('CustomGPT Gateway')
     .setDescription('GPT Bot')
     .setVersion('1.0')
     .setBasePath(config.apiGateway.prefix)

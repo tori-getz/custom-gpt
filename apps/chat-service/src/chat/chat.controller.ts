@@ -16,12 +16,8 @@ export class ChatController {
     @Payload() dto: GetChatList,
   ): Promise<Paginated<ChatEntity>> {
     using logger = methodLog(this.logger, this.getChatList.name);
-    try {
-      const result = await this.chatService.findAll(dto.query);
-      return result;
-    } catch (e) {
-      throw new RpcException(e);
-    }
+    const result = await this.chatService.findAll(dto);
+    return result;
   }
 
   @MessagePattern('chat.history')
@@ -34,11 +30,11 @@ export class ChatController {
   }
 
   @MessagePattern('chat.create')
-  public async chatCreate(
+  public async create(
     @Payload() dto: ChatCreate,
   ): Promise<ChatEntity> {
-    using logger = methodLog(this.logger, this.chatCreate.name);
-    const result = await this.chatService.createChat(dto);
+    using logger = methodLog(this.logger, this.create.name);
+    const result = await this.chatService.create(dto);
     return result;
   }
 

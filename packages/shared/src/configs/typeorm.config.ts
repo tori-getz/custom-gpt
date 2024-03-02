@@ -1,8 +1,8 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { ConfigService } from "../config/config.service";
-import { ChatEntity, MessageEntity } from "../entities";
+import { ChatEntity, MessageEntity, UserEntity } from "../entities";
 import { path as appRoot } from 'app-root-path';
-import * as path from 'node:path';
+import * as path from 'node:path';;
 
 const MIGRATIONS_PATH = path.resolve(appRoot, 'migrations/');
 
@@ -18,6 +18,6 @@ export const getTypeOrmConfig = async (configService: ConfigService): Promise<Ty
     database: config.typeorm.database,
     synchronize: false,
     migrations: [MIGRATIONS_PATH],
-    entities: [ChatEntity, MessageEntity],
+    entities: [ChatEntity, MessageEntity, UserEntity],
   };
 };

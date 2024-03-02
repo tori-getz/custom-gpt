@@ -1,4 +1,4 @@
-import { ChatCreate, ChatEntity, GetChatHistory, GetChatList, InjectPinoLogger, MessageEntity, PinoLogger, SendMessageToChat, methodLog } from '@app/shared';
+import { AuthPayload, ChatCreate, ChatEntity, GetChatHistory, GetChatList, InjectPinoLogger, MessageEntity, PinoLogger, SendMessageToChat, methodLog } from '@app/shared';
 import { Inject, Injectable, OnApplicationBootstrap, Query } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { Observable, Subject, catchError, firstValueFrom } from 'rxjs';
@@ -18,11 +18,12 @@ export class ChatService implements OnApplicationBootstrap {
     this.chatService.connect();
   }
 
-  public async getChats(query: PaginateQuery): Promise<Paginated<ChatEntity>> {
+  public async getChats(query: PaginateQuery, authPayload: AuthPayload): Promise<Paginated<ChatEntity>> {
     using logger = methodLog(this.logger, this.getChats.name);
 
     const getChatList = new GetChatList();
     getChatList.query = query;
+    getChatList.authPayload = authPayload;
 
     const chats = await firstValueFrom(
       this.chatService.send<Paginated<ChatEntity>>('chat.list', getChatList).pipe(
@@ -36,12 +37,17 @@ export class ChatService implements OnApplicationBootstrap {
     return chats;
   }
 
-  public async getHistory(chatId: string, query: PaginateQuery): Promise<Paginated<MessageEntity>> {
+  public async getHistory(
+    chatId: string,
+    query: PaginateQuery,
+    authPayload: AuthPayload,
+  ): Promise<Paginated<MessageEntity>> {
     using logger = methodLog(this.logger, this.getChats.name);
 
     const getChatHistory = new GetChatHistory();
     getChatHistory.chatId = chatId;
     getChatHistory.query = query;
+    getChatHistory.authPayload = authPayload;
 
     const messages = await firstValueFrom(
       this.chatService.send<Paginated<MessageEntity>>('chat.history', getChatHistory).pipe(
@@ -55,13 +61,14 @@ export class ChatService implements OnApplicationBootstrap {
     return messages;
   }
 
-  public async createChat(chatName: string): Promise<ChatEntity> {
-    using logger = methodLog(this.logger, this.createChat.name);
+  public async create(chatName: string, authPayload: AuthPayload): Promise<ChatEntity> {
+    using logger = methodLog(this.logger, this.create.name);
 
     logger.log(`chat name - ${chatName}`);
 
     const chat = new ChatCreate();
     chat.chatName = chatName;
+    chat.authPayload = authPayload;
 
     const chatEntity = await firstValueFrom(
       this.chatService.send<ChatEntity>('chat.create', chat).pipe(
@@ -77,12 +84,13 @@ export class ChatService implements OnApplicationBootstrap {
     return chatEntity;
   }
 
-  public async sendMessage(dto: SendMessageDto, chatId: string): Promise<MessageEntity> {
+  public async sendMessage(dto: SendMessageDto, chatId: string, authPayload: AuthPayload): Promise<MessageEntity> {
     using logger = methodLog(this.logger, this.sendMessage.name);
     
     const sendMessageToChat = new SendMessageToChat();
     sendMessageToChat.chatId = chatId;
     sendMessageToChat.content = dto.text;
+    sendMessageToChat.authPayload = authPayload;
 
     const message = await firstValueFrom(
       this.chatService.send<MessageEntity>('chat.sendMessage', sendMessageToChat).pipe(

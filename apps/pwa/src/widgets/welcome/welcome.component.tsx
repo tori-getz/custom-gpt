@@ -1,6 +1,9 @@
 import React from 'react';
 import cls from './welcome.module.sass';
 import { CreateChat } from '~/features/create-chat';
+import { Button } from '~/shared/ui/buttons/button';
+import { MdMenu } from 'react-icons/md';
+import { setMenuOpened } from '../layout';
 
 export const Welcome: React.FC = () => {
   return (
@@ -9,7 +12,12 @@ export const Welcome: React.FC = () => {
         <h1 className={cls.card__title}>Gopnik GPT</h1>
         <CreateChat />
         <span className={cls.card__divider}>или</span>
-        <p>выберите чат сбоку</p>
+        <Button
+          left={<MdMenu />}
+          onClick={() => setMenuOpened(true)}
+        >
+          Откройте меню
+        </Button>
       </div>
     </div>
   )
