@@ -1,0 +1,18 @@
+@import '~/shared/ui/mixins/shadows.sass'
+
+.card
+  display: flex
+  align-items: center
+  padding: 12px
+  gap: 10px
+  &__avatar
+    @include Shadow1Mixin
+    background: var(--grey4)
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 32px
+    height: 32px
+    border-radius: 50%
+  &__title
+    flex: 1

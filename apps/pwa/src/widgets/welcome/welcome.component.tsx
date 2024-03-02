@@ -9,7 +9,7 @@ export const Welcome: React.FC = () => {
   return (
     <div className={cls.page}>
       <div className={cls.card}>
-        <h1 className={cls.card__title}>Gopnik GPT</h1>
+        <h1 className={cls.card__title}>CustomGPT</h1>
         <CreateChat />
         <span className={cls.card__divider}>или</span>
         <Button
