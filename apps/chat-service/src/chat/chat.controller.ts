@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { ChatCreate, ChatEntity, GetChatHistory, GetChatList, InjectPinoLogger, MessageEntity, PinoLogger, SendMessageToChat, methodLog } from '@app/shared';
-import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
+import { CreateChat, ChatEntity, GetChatHistory, GetChatList, InjectPinoLogger, MessageEntity, PinoLogger, SendMessageToChat, methodLog, UpdateChat } from '@app/shared';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Paginated } from 'nestjs-paginate';
 
 @Controller('chat')
@@ -31,10 +31,19 @@ export class ChatController {
 
   @MessagePattern('chat.create')
   public async create(
-    @Payload() dto: ChatCreate,
+    @Payload() dto: CreateChat,
   ): Promise<ChatEntity> {
     using logger = methodLog(this.logger, this.create.name);
     const result = await this.chatService.create(dto);
+    return result;
+  }
+
+  @MessagePattern('chat.update')
+  public async update(
+    @Payload() dto: UpdateChat,
+  ): Promise<ChatEntity> {
+    using logger = methodLog(this.logger, this.update.name);
+    const result = await this.chatService.update(dto);
     return result;
   }
 

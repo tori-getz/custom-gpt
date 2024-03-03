@@ -10,6 +10,12 @@ export class ChatEntity {
   @Column()
   public name: string;
 
+  @Column()
+  public botArchetype: string;
+
+  @Column()
+  public telegramApiToken: string;
+
   @OneToMany(() => MessageEntity, message => message.chat)
   public messages: Array<MessageEntity>;
 

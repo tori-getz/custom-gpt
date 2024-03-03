@@ -11,4 +11,8 @@ export class ChatDto {
   @ApiProperty()
   @IsString()
   public name: string;
+
+  @ApiProperty()
+  @IsString()
+  public botArchetype: string;
 }

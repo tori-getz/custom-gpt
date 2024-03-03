@@ -24,7 +24,7 @@ async function bootstrap() {
     .setTitle('CustomGPT Gateway')
     .setDescription('GPT Bot')
     .setVersion('1.0')
-    .setBasePath(config.apiGateway.prefix)
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, documentConfig);
   SwaggerModule.setup(config.apiGateway.swaggerUrl, app, document);

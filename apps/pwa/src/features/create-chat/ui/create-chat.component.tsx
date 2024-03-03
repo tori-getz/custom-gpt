@@ -8,9 +8,10 @@ import { setMenuOpened } from "~/widgets/layout";
 export const CreateChat: React.FC = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-  const onConfirm = (title: string) => {
+  const onConfirm = (title: string, archetype: string) => {
     setModalOpen(false);
-    createChatMutation.start({ chatName: title });
+    console.log('CREATE CHAT', title, archetype)
+    createChatMutation.start({ chatName: title, archetype });
   };
 
   const onOpenModal = () => {

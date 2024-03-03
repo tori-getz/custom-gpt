@@ -12,11 +12,11 @@ export class GptController {
 
   @MessagePattern('gpt.generate')
   public async generate(
-    @Payload() { input }: GptGenerateInput,
+    @Payload() dto: GptGenerateInput,
   ): Promise<GptGenerateOutput> {
     methodLog(this.logger, this.generate.name);
 
-    const result = this.gptService.generate(input);
+    const result = this.gptService.generate(dto);
 
     return result;
   }

@@ -1,9 +1,11 @@
-import { AuthPayload, ChatCreate, ChatEntity, GetChatHistory, GetChatList, InjectPinoLogger, MessageEntity, PinoLogger, SendMessageToChat, methodLog } from '@app/shared';
+import { AuthPayload, CreateChat, ChatEntity, GetChatHistory, GetChatList, InjectPinoLogger, MessageEntity, PinoLogger, SendMessageToChat, methodLog, UpdateChat } from '@app/shared';
 import { Inject, Injectable, OnApplicationBootstrap, Query } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { Observable, Subject, catchError, firstValueFrom } from 'rxjs';
 import { SendMessageDto } from './dto/send-message.dto';
 import { PaginateQuery, Paginated } from 'nestjs-paginate';
+import { CreateChatDto } from './dto/create-chat.dto';
+import { UpdateChatDto } from './dto/update-chat.dto';
 
 @Injectable()
 export class ChatService implements OnApplicationBootstrap {
@@ -61,13 +63,15 @@ export class ChatService implements OnApplicationBootstrap {
     return messages;
   }
 
-  public async create(chatName: string, authPayload: AuthPayload): Promise<ChatEntity> {
+  public async create(dto: CreateChatDto, authPayload: AuthPayload): Promise<ChatEntity> {
     using logger = methodLog(this.logger, this.create.name);
 
-    logger.log(`chat name - ${chatName}`);
+    logger.log(`chat name - ${dto.chatName}`);
 
-    const chat = new ChatCreate();
-    chat.chatName = chatName;
+    const chat = new CreateChat();
+    chat.chatName = dto.chatName;
+    chat.archetype = dto.archetype;
+    chat.telegramApiToken = dto.telegramApiToken;
     chat.authPayload = authPayload;
 
     const chatEntity = await firstValueFrom(
@@ -84,13 +88,39 @@ export class ChatService implements OnApplicationBootstrap {
     return chatEntity;
   }
 
+  public async update(
+    chatId: string,
+    dto: UpdateChatDto,
+    authPayload: AuthPayload,  
+  ): Promise<ChatEntity> {
+    using logger = methodLog(this.logger, this.update.name);
+
+    const updateChat = new UpdateChat();
+    updateChat.chatId = chatId;
+    updateChat.chatName = dto.chatName;
+    updateChat.archetype = dto.archetype;
+    updateChat.telegramApiToken = dto.telegramApiToken;
+    updateChat.authPayload = authPayload;
+
+    const chatEntity = await firstValueFrom(
+      this.chatService.send<ChatEntity>('chat.update', updateChat).pipe(
+        catchError(e => {
+          logger.logError(e);
+          throw e;
+        })
+      ),
+    );
+
+    return chatEntity;
+  }
+
   public async sendMessage(dto: SendMessageDto, chatId: string, authPayload: AuthPayload): Promise<MessageEntity> {
     using logger = methodLog(this.logger, this.sendMessage.name);
     
     const sendMessageToChat = new SendMessageToChat();
     sendMessageToChat.chatId = chatId;
     sendMessageToChat.content = dto.text;
-    sendMessageToChat.authPayload = authPayload;
+    sendMessageToChat.authPayload = authPayload ;
 
     const message = await firstValueFrom(
       this.chatService.send<MessageEntity>('chat.sendMessage', sendMessageToChat).pipe(

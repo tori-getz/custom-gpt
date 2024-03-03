@@ -1,5 +1,5 @@
 import { AuthPayload, BroadcastMessage, ChatEntity, InjectPinoLogger, JwtGuard, JwtUser, MessageEntity, PinoLogger, methodLog } from '@app/shared';
-import { Body, Controller, Get, Param, Post, Sse, MessageEvent, UseGuards, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Sse, MessageEvent, UseGuards, Query, Patch } from '@nestjs/common';
 import { ApiBearerAuth, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
@@ -10,6 +10,7 @@ import { ApiOkPaginatedResponse, ApiPaginationQuery, Paginate, PaginateQuery, Pa
 import { ChatDto } from './dto/chat.dto';
 import { MessageDto } from './dto/message.dto';
 import { JwtService } from '@nestjs/jwt';
+import { UpdateChatDto } from './dto/update-chat.dto';
 
 @ApiTags('Chats')
 @Controller('chats')
@@ -77,7 +78,20 @@ export class ChatController {
     @JwtUser() jwtUser: AuthPayload,
   ): Promise<ChatEntity> {
     using logger = methodLog(this.logger, this.create.name);
-    const result = this.chatService.create(dto.chatName, jwtUser);
+    const result = await this.chatService.create(dto, jwtUser);
+    return result;
+  }
+
+  @Patch(':chatId')
+  @ApiBearerAuth()
+  @UseGuards(JwtGuard)
+  public async update(
+    @Param(`chatId`) chatId: string,
+    @Body() dto: UpdateChatDto,
+    @JwtUser() jwtUser: AuthPayload,
+  ): Promise<ChatEntity> {
+    using logger = methodLog(this.logger, this.update.name);
+    const result = await this.chatService.update(chatId, dto, jwtUser);
     return result;
   }
 
@@ -90,7 +104,7 @@ export class ChatController {
     @JwtUser() jwtUser: AuthPayload,
   ): Promise<MessageEntity> {
     using logger = methodLog(this.logger, this.sendMessage.name);
-    const result = this.chatService.sendMessage(dto, chatId, jwtUser);
+    const result = await this.chatService.sendMessage(dto, chatId, jwtUser);
     return result;
   }
 

@@ -1,9 +1,9 @@
-import { BroadcastMessage, ChatCreate, ChatEntity, ChatSender, GetChatHistory, GetChatList, GptGenerateInput, GptGenerateOutput, InjectPinoLogger, MessageEntity, PinoLogger, SendMessageToChat, UserEntity, methodLog } from '@app/shared';
+import { BroadcastMessage, CreateChat, ChatEntity, ChatSender, GetChatHistory, GetChatList, GptGenerateInput, GptGenerateOutput, InjectPinoLogger, MessageEntity, PinoLogger, SendMessageToChat, UserEntity, methodLog, UpdateChat } from '@app/shared';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Paginated, paginate } from 'nestjs-paginate';
-import { catchError, firstValueFrom } from 'rxjs';
+import { catchError, find, firstValueFrom } from 'rxjs';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -29,7 +29,7 @@ export class ChatService implements OnApplicationBootstrap {
       sortableColumns: ['id'],
       searchableColumns: ['name'],
       defaultSortBy: [['id', 'DESC']],
-      select: ['id', 'name'],
+      select: ['id', 'name', 'botArchetype', 'createdAt'],
       where: {
         user: {
           id: dto.authPayload.userId,
@@ -65,7 +65,7 @@ export class ChatService implements OnApplicationBootstrap {
     return response;
   }
 
-  public async create({ chatName, authPayload }: ChatCreate): Promise<ChatEntity> {
+  public async create({ chatName, archetype, telegramApiToken, authPayload }: CreateChat): Promise<ChatEntity> {
     using logger = methodLog(this.logger, this.create.name);
     
     const user = await this.userRepository.findOne({
@@ -76,10 +76,31 @@ export class ChatService implements OnApplicationBootstrap {
 
     const chat = this.chatRepository.create({
       name: chatName,
+      botArchetype: archetype,
+      telegramApiToken,
       user,
     });
 
     return this.chatRepository.save(chat);
+  }
+
+  public async update(dto: UpdateChat): Promise<ChatEntity> {
+    using logger = methodLog(this.logger, this.update.name);
+
+    const findChat = await this.chatRepository.findOne({
+      where: {
+        id: dto.chatId,
+        user: {
+          id: dto.authPayload.userId,
+        },
+      },
+    });
+
+    findChat.name = dto.chatName;
+    findChat.botArchetype = dto.archetype;
+    findChat.telegramApiToken = dto.telegramApiToken;
+
+    return this.chatRepository.save(findChat);
   }
 
   public async sendMessage({ chatId, content, authPayload }: SendMessageToChat): Promise<MessageEntity> {
@@ -121,6 +142,7 @@ export class ChatService implements OnApplicationBootstrap {
     try {
       const gptGenerateInput = new GptGenerateInput();
       gptGenerateInput.input = content;
+      gptGenerateInput.archetype = chat.botArchetype;
 
       logger.log(`input - ${content}`);
       const gptGenerateOutput = await firstValueFrom(

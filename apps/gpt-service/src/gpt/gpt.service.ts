@@ -1,12 +1,12 @@
-import { ConfigService, GptGenerateOutput, InjectPinoLogger, PinoLogger, attachScope, methodLog } from '@app/shared';
+import { ConfigService, GptGenerateInput, GptGenerateOutput, InjectPinoLogger, PinoLogger, attachScope, methodLog } from '@app/shared';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { IChatResponse } from './interfaces/chat.response';
 import { IChatRequest } from './interfaces/chat.request';
 import { ChatRole } from './interfaces/chat-role.enum';
 import { catchError, firstValueFrom } from 'rxjs';
-import { AxiosError } from 'axios';
-import { PROMPT } from './gpt.constants';
+import { AxiosError } from 'axios';import { generatePrompt } from 'src/utils/generate-prompt.utilt';
+;
 
 @Injectable()
 export class GptService {
@@ -16,7 +16,7 @@ export class GptService {
     private readonly configService: ConfigService,
   ) {}
 
-  public async generate(input: string): Promise<GptGenerateOutput> {
+  public async generate(dto: GptGenerateInput): Promise<GptGenerateOutput> {
     using logger = methodLog(this.logger, this.generate.name);
     
     const config = this.configService.getConfig();
@@ -26,12 +26,12 @@ export class GptService {
       messages: [
         {
           role: ChatRole.USER,
-          content: PROMPT + input,
+          content: generatePrompt(dto.input, dto.archetype),
         },
       ],
     };
 
-    logger.log(`input - ${input}`);
+    logger.log(`input - ${dto.input}`);
 
     const { data } = await firstValueFrom(
       this.httpService.post<IChatResponse>('/chat/completions', request).pipe(

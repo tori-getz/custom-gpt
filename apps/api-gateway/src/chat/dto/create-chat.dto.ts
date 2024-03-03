@@ -5,4 +5,12 @@ export class CreateChatDto {
   @ApiProperty()
   @IsString()
   public chatName: string;
+
+  @ApiProperty()
+  @IsString()
+  public archetype: string;
+
+  @ApiProperty()
+  @IsString()
+  public telegramApiToken: string;
 }

@@ -3,8 +3,8 @@ import { createChat } from "./api";
 import { getChatsQuery } from "~/entities/chat";
 
 export const createChatMutation = createMutation({
-  handler: async ({ chatName }: { chatName: string }) => {
-    return createChat(chatName);
+  handler: async ({ chatName, archetype }: { chatName: string, archetype: string }) => {
+    return createChat(chatName, archetype);
   }
 });
 

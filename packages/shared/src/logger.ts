@@ -45,7 +45,10 @@ export const getPinoConfig = (serviceName: string): Params => ({
           options: {
             host: process.env.LOKI_INSTANCE_URL,
             batching: false,
-            labels: { application: serviceName, },
+            labels: {
+              application: serviceName,
+              environment: process.env.LOKI_ENVIRONMENT,
+            },
           }
         },
         {
