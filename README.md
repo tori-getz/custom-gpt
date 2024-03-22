@@ -1,1 +1,1 @@
-# gopnik-gpt
+# custom-gpt
